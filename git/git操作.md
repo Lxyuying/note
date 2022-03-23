@@ -11,3 +11,15 @@ css/*.css       //忽略css目录下的.css文件
 *.css       	//忽略.css类型的文件
 ```
 
+
+
+# 删除文件夹（仅远程仓库）
+
+```
+git rm -r --cached target
+git commit -m '删除了target'
+git push -u origin master
+```
+
+
+
