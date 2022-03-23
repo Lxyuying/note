@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>1_字符串形式的ref</title>
+  </head>
+  <body>
+    <div id="test"></div>
+
+    <script type="text/javascript" src="../js/react.development.js"></script>
+    <script type="text/javascript" src="../js/react-dom.development.js"></script>
+    <script type="text/javascript" src="../js/babel.min.js"></script>
+    <script type="text/javascript" src="../js/prop-types.js"></script>
+
+    <script type="text/babel">
+      class MyComponent extends React.Component {
+        show1 = () => {
+          const { input1 } = this.refs
+          console.log(input1)
+        }
+
+        show2 = () => {
+          const { input2 } = this.refs
+          console.log(input2)
+        }
+
+        render() {
+          return (
+            <div>
+              <input onBlur={this.show1} type="text" ref="input1" placeholder="input1" />
+              <br />
+              <input onBlur={this.show2} type="text" ref="input2" placeholder="input2" />
+            </div>
+          )
+        }
+      }
+
+      ReactDOM.render(<MyComponent />, document.getElementById('test'))
+    </script>
+  </body>
+</html>
