@@ -1073,3 +1073,340 @@ $.ajax({
 })
 ```
 
+
+
+## 十、mysql模块
+
+> npm i mysql
+
+### 1. 配置
+
+```js
+// 1. 导入 mysql 模块
+const mysql = require('mysql')
+// 2. 建立与 MySQL 数据库的连接关系
+const db = mysql.createPool({
+  host: '127.0.0.1', // 数据库的 IP 地址
+  user: 'root', // 登录数据库的账号
+  password: '123456', // 登录数据库的密码
+  database: 'dbname', // 指定要操作哪个数据库
+})
+```
+
+### 2.测试
+
+```js
+db.query('select 1', (err, results) => {
+  // mysql 模块工作期间报错了
+  if(err) return console.log(err.message)
+  // 能够成功的执行 SQL 语句
+  console.log(results)
+})
+```
+
+### 3.查询
+
+```js
+const sqlStr = 'select * from users'
+db.query(sqlStr, (err, results) => {
+  // 查询数据失败
+  if (err) return console.log(err.message)
+  // 查询数据成功
+  // 注意：如果执行的是 select 查询语句，则执行的结果是数组
+  console.log(results)
+})
+```
+
+### 4.插入
+
+```js
+// 向 users 表中，新增一条数据，其中 username 的值为 Spider-Man，password 的值为 pcc123
+const user = { username: 'Spider-Man', password: 'pcc123' }
+// 定义待执行的 SQL 语句
+const sqlStr = 'insert into users (username, password) values (?, ?)'
+// 执行 SQL 语句
+db.query(sqlStr, [user.username, user.password], (err, results) => {
+  // 执行 SQL 语句失败了
+  if (err) return console.log(err.message)
+  // 成功了
+  // 注意：如果执行的是 insert into 插入语句，则 results 是一个对象
+  // 可以通过 affectedRows 属性，来判断是否插入数据成功
+  if (results.affectedRows === 1) {
+    console.log('插入数据成功!')
+  }
+})
+```
+
+```js
+// 演示插入数据的便捷方式
+const user = { username: 'Spider-Man2', password: 'pcc4321' }
+// 定义待执行的 SQL 语句
+const sqlStr = 'insert into users set ?'
+// 执行 SQL 语句
+db.query(sqlStr, user, (err, results) => {
+  if (err) return console.log(err.message)
+  if (results.affectedRows === 1) {
+    console.log('插入数据成功')
+  }
+})
+```
+
+### 5.更新
+
+```js
+// 演示如何更新用户的信息
+const user = { id: 6, username: 'aaa', password: '000' }
+// 定义 SQL 语句
+const sqlStr = 'update users set username=?, password=? where id=?'
+// 执行 SQL 语句
+db.query(sqlStr, [user.username, user.password, user.id], (err, results) => {
+  if (err) return console.log(err.message)
+  // 注意：执行了 update 语句之后，执行的结果，也是一个对象，可以通过 affectedRows 判断是否更新成功
+  if (results.affectedRows === 1) {
+    console.log('更新成功')
+  }
+})
+```
+
+```js
+// 演示更新数据的便捷方式
+const user = { id: 6, username: 'aaaa', password: '0000' }
+// 定义 SQL 语句
+const sqlStr = 'update users set ? where id=?'
+// 执行 SQL 语句
+db.query(sqlStr, [user, user.id], (err, results) => {
+  if (err) return console.log(err.message)
+  if (results.affectedRows === 1) {
+    console.log('更新数据成功')
+  }
+})
+```
+
+### 6.删除
+
+```js
+// 删除 id 为 5 的用户
+const sqlStr = 'delete from users where id=?'
+db.query(sqlStr, 5, (err, results) => {
+  if (err) return console.log(err.message)
+  // 注意：执行 delete 语句之后，结果也是一个对象，也会包含 affectedRows 属性
+  if (results.affectedRows === 1) {
+    console.log('删除数据成功')
+  }
+}) 
+```
+
+
+
+## 十一、express-session
+
+```js
+npm install express-session
+```
+
+### 1.配置express-session中间件
+
+```js
+// 导入 express 模块
+const express = require('express')
+// 创建 express 的服务器实例
+const app = express()
+
+// TODO_01：请配置 Session 中间件
+const session = require('express-session')
+app.use(
+  session({
+    secret: 'liaoxingyu', // 为任意字符串
+    resave: false, // 固定写法
+    saveUninitialized: true, // 固定写法
+  })
+)
+```
+
+### 2. 向**session** **中**存数据
+
+```js
+// 登录的 API 接口
+app.post('/api/login', (req, res) => {
+  // 判断用户提交的登录信息是否正确
+  if (req.body.username !== 'admin' || req.body.password !== '000000') {
+    return res.send({ status: 1, msg: '登录失败' })
+  }
+
+  // TODO_02：请将登录成功后的用户信息，保存到 Session 中
+  // 注意：只有成功配置了 express-session 这个中间件之后，才能够通过 req 点出来 session 这个属性
+  req.session.user = req.body // 用户的信息
+  req.session.islogin = true // 用户的登录状态
+
+  res.send({ status: 0, msg: '登录成功' })
+})
+
+```
+
+### 3.从 **session** **中**取数据
+
+```js
+// 获取用户姓名的接口
+app.get('/api/username', (req, res) => {
+  // TODO_03：请从 Session 中获取用户的名称，响应给客户端
+  if (!req.session.islogin) {
+    return res.send({ status: 1, msg: 'fail' })
+  }
+  res.send({
+    status: 0,
+    msg: 'success',
+    username: req.session.user.username,
+  })
+})
+```
+
+### 4. 清空 **session**  
+
+```js
+// 退出登录的接口
+app.post('/api/logout', (req, res) => {
+  // TODO_04：清空 Session 信息
+  req.session.destroy()
+  res.send({
+    status: 0,
+    msg: '退出登录成功',
+  })
+})
+```
+
+
+
+```js
+// 调用 app.listen 方法，指定端口号并启动web服务器
+app.listen(80, function () {
+  console.log('Express server running at http://127.0.0.1:80')
+})
+
+```
+
+## 十二、jwt
+
+JWT（英文全称：JSON Web Token）是目前**最流行**的**跨域认证解决方案**。
+
+JWT 通常由三部分组成，分别是 Header（头部）、Payload（有效荷载）、Signature（签名）。
+
+三者之间使用英文的“.”分隔，格式如下：
+
+> Header.Payload.Signature
+
+l **Payload** 部分**才是真正的用户信息**，它是用户信息经过加密之后生成的字符串。
+
+l Header 和 Signature 是**安全性相关**的部分，只是为了保证 Token 的安全性。
+
+### 1. **安装** **JWT** **相关的包**  
+
+> npm i jsonwebtoken express-jwt
+
+**jsonwebtoken** 用于**生成** **JWT** **字符串**
+
+**express-**jwt 用于**将** **JWT** **字符串解析还原成** **JSON** **对象**
+
+### 2. **导入** **JWT** **相关的包**
+
+```js
+// 导入 express 模块
+const express = require('express')
+// 创建 express 的服务器实例
+const app = express()
+
+// TODO_01：安装并导入 JWT 相关的两个包，分别是 jsonwebtoken 和 express-jwt
+const jwt = require('jsonwebtoken')
+const expressJWT = require('express-jwt')
+
+// 允许跨域资源共享
+const cors = require('cors')
+app.use(cors())
+
+// 解析 post 表单数据的中间件
+const bodyParser = require('body-parser')
+app.use(bodyParser.urlencoded({ extended: false }))
+```
+
+### 3. 定义 secret 密钥
+
+```js
+// TODO_02：定义 secret 密钥，建议将密钥命名为 secretKey
+const secretKey = 'ouyuming ^_^'
+```
+
+### 4. **在登录成功**后生成 **JWT** **字符串**
+
+```js
+// 登录接口
+app.post('/api/login', function (req, res) {
+  // 将 req.body 请求体中的数据，转存为 userinfo 常量
+  const userinfo = req.body
+  // 登录失败
+  if (userinfo.username !== 'admin' || userinfo.password !== '000000') {
+    return res.send({
+      status: 400,
+      message: '登录失败！',
+    })
+  }
+  // 登录成功
+  // TODO_03：在登录成功之后，调用 jwt.sign() 方法生成 JWT 字符串。并通过 token 属性发送给客户端
+  // 参数1：用户的信息对象
+  // 参数2：加密的秘钥
+  // 参数3：配置对象，可以配置当前 token 的有效期
+  // 记住：千万不要把密码加密到 token 字符中
+  const tokenStr = jwt.sign({ username: userinfo.username }, secretKey, { expiresIn: '30s' })
+  res.send({
+    status: 200,
+    message: '登录成功！',
+    token: tokenStr, // 要发送给客户端的 token 字符串
+  })
+})
+```
+
+### 5. JWT 字符串解析还原成 JSON
+
+```js
+// TODO_04：注册将 JWT 字符串解析还原成 JSON 对象的中间件
+// 注意：只要配置成功了 express-jwt 这个中间件，就可以把解析出来的用户信息，挂载到 req.user 属性上
+app.use(expressJWT({ secret: secretKey }).unless({ path: [/^\/api\//] }))
+```
+
+### 6.使用 **req.user** **获取用户信息**  
+
+```js
+// 这是一个有权限的 API 接口
+app.get('/admin/getinfo', function (req, res) {
+  // TODO_05：使用 req.user 获取用户信息，并使用 data 属性将用户信息发送给客户端
+  console.log(req.user)
+  res.send({
+    status: 200,
+    message: '获取用户信息成功！',
+    data: req.user, // 要发送给客户端的用户信息
+  })
+})
+```
+
+### **7.** **捕获解析** **JWT** **失败后产生的错误**
+
+```js
+// TODO_06：使用全局错误处理中间件，捕获解析 JWT 失败后产生的错误
+app.use((err, req, res, next) => {
+  // 这次错误是由 token 解析失败导致的
+  if (err.name === 'UnauthorizedError') {
+    return res.send({
+      status: 401,
+      message: '无效的token',
+    })
+  }
+  res.send({
+    status: 500,
+    message: '未知的错误',
+  })
+})
+
+// 调用 app.listen 方法，指定端口号并启动web服务器
+app.listen(8888, function () {
+  console.log('Express server running at http://127.0.0.1:8888')
+})
+```
+
