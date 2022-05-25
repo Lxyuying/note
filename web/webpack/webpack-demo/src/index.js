@@ -1,5 +1,5 @@
 // npm install --save lodash
-import _ from 'lodash';
+// import _ from 'lodash';
 // go-back-管理资源
 // import './style.css';
 // import './iconfont.css'
@@ -10,7 +10,7 @@ import _ from 'lodash';
 // import yaml from './data.yaml';
 // import json from './data.json5';
 
-import printMe from './print.js';
+// import printMe from './print.js';
 
 // console.log(toml.title); // output `TOML Example`
 // console.log(toml.owner.name); // output `Tom Preston-Werner`
@@ -21,20 +21,20 @@ import printMe from './print.js';
 // console.log(json.title); // output `JSON5 Example`
 // console.log(json.owner.name); // output `Tom Preston-Werner`
 
-function component () {
+// function component () {
 
   // console.log(Data);
   // console.log(Notes);
 
-  const element = document.createElement('div');
-  const btn = document.createElement('button');
+  // const element = document.createElement('div');
+  // const btn = document.createElement('button');
   // lodash（目前通过一个 script 引入）对于执行这一行是必需的
-  element.innerHTML = _.join(['Hello', 'webpack'], ' ');
+  // element.innerHTML = _.join(['Hello', 'webpack'], ' ');
 
-  btn.innerHTML = 'Click me and check the console!';
-  btn.onclick = printMe;
+  // btn.innerHTML = 'Click me and check the console!';
+  // btn.onclick = printMe;
 
-  element.appendChild(btn);
+  // element.appendChild(btn);
   
   // element.classList.add('hello');
   // // 将图像添加到我们已经存在的 div 中。
@@ -60,11 +60,26 @@ function component () {
   // element6.classList.add('iconfont');
   // element6.classList.add('icon-dongman9-01')
   // return [element,element1,element2,element3,element4,element5,element6];
-  return element
-}
+//   return element
+// }
 // const elements = component();
 // for (let i = 0; i < elements.length; i++) {
 //   document.body.appendChild(elements[i]);
 // }
 
-document.body.appendChild(component());
+// document.body.appendChild(component());
+function getComponent() {
+  const element = document.createElement('div')
+  return import('lodash')
+  .then(({ default: _ }) => {
+    const element = document.createElement('div');
+
+    element.innerHTML = _.join(['Hello', 'webpack'], ' ');
+    return element;
+    })
+    .catch((error) => 'An error occurred while loading the component');
+}
+
+getComponent().then((component) => {
+  document.body.appendChild(component);
+})

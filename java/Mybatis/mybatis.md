@@ -460,7 +460,7 @@ public void test() throws Exception{
 
 ## 3、  多对多查询 
 
-```
+```xml
 <resultMap id="userRoleMap" type="com.itheima.domain.User">
     <result column="id" property="id"></result>
     <result column="username" property="username"></result>

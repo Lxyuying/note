@@ -9,9 +9,27 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 module.exports = {
   // entry: './src/index.js',
   mode: 'development',
+  // 入口起点：使用 entry 配置手动地分离代码。
+  // 如果入口 chunk 之间包含一些重复的模块，那些重复模块都会被引入到各个 bundle 中。
+  // 这种方法不够灵活，并且不能动态地将核心应用程序逻辑中的代码拆分出来。
   entry: {
     index: './src/index.js',
-    print: './src/print.js',
+    // print: './src/print.js',
+    // another: './src/another-module.js',
+    // 配置 dependOn option 选项，这样可以在多个 chunk 之间共享模块：
+    // index: {
+    //   import: './src/index.js',
+    //   dependOn: 'shared',
+    // },
+    // print: {
+    //   import: './src/print.js',
+    //   dependOn: 'shared',
+    // },
+    // another: {
+    //   import: './src/another-module.js',
+    //   dependOn: 'shared',
+    // },
+    // shared: 'lodash',
   },
   // 使用 source map: 为了更容易地追踪 error 和 warning
   // 可以将编译后的代码映射回原始源代码
@@ -40,6 +58,15 @@ module.exports = {
     // npm install --save-dev express webpack-dev-middleware
     publicPath: '/',
   },
+  // optimization: {
+  //   splitChunks: {
+  //     chunks: 'all',
+  //   },
+  // },
+  // 要在一个 HTML 页面上使用多个入口时，还需设置 optimization.runtimeChunk: 'single'
+  // optimization: {
+  //   runtimeChunk: 'single',
+  // },
   // go-back-管理资源
   // module: {
   //   rules: [
