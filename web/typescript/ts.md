@@ -294,7 +294,75 @@ const person: Person = {
 }
 ```
 
-## 8、函数
+## 8、数组
+
+声明数组类型
+
+```ts
+//类型加中括号
+let arr:number[] = [123]
+//这样会报错定义了数字类型出现字符串是不允许的
+let arr:number[] = [1,2,3,'1']
+//操作方法添加也是不允许的
+let arr:number[] = [1,2,3,]
+arr.unshift('1')
+ 
+ 
+var arr: number[] = [1, 2, 3]; //数字类型的数组
+var arr2: string[] = ["1", "2"]; //字符串类型的数组
+var arr3: any[] = [1, "2", true]; //任意类型的数组
+```
+
+使用泛型
+
+```ts
+let arr:Array<number> = [1,2,3,4,5]
+```
+
+用接口表示数组
+
+```ts
+interface NumberArray {
+    [index: number]: number;
+}
+let fibonacci: NumberArray = [1, 1, 2, 3, 5];
+//表示：只要索引的类型是数字时，那么值的类型必须是数字。
+```
+
+多维数组
+
+```ts
+let data:number[][] = [[1,2], [3,4]];
+```
+
+arguments类数组
+
+```ts
+function Arr(...args:any): void {
+    console.log(arguments)
+    //错误的arguments 是类数组不能这样定义
+    let arr:number[] = arguments
+}
+Arr(111, 222, 333)
+ 
+function Arr(...args:any): void {
+    console.log(arguments) 
+    //ts内置对象IArguments 定义
+    let arr:IArguments = arguments
+}
+Arr(111, 222, 333)
+ 
+//其中 IArguments 是 TypeScript 中定义好了的类型，它实际上就是：
+interface IArguments {
+[index: number]: any;
+length: number;
+callee: Function;
+}
+```
+
+
+
+## 9、函数
 
  在 [TypeScript](https://www.tslang.cn/docs/handbook/functions.html) 里，我们可以通过 function 字面量和箭头函数的形式定义函数，如下所示： 
 
@@ -423,3 +491,965 @@ function func(x: unknown) {
 ```
 
 在上述代码中，在添加返回值类型的地方，通过“参数名 + is + 类型”的格式明确表明了参数的类型，进而引起**类型缩小**，所以类型谓词函数的一个重要的应用场景是**实现自定义类型守卫** 
+
+
+
+## 10、类型断言 | 联合类型 | 交叉类型
+
+### 联合类型
+
+```ts
+//例如我们的手机号通常是13XXXXXXX 为数字类型 这时候产品说需要支持座机
+//所以我们就可以使用联合类型支持座机字符串
+let myPhone: number | string  = '010-820'
+ 
+ 
+//这样写是会报错的应为我们的联合类型只有数字和字符串并没有布尔值
+let myPhone: number | string  = true
+```
+
+ 函数使用联合类型
+
+```ts
+const fn = (something:number | boolean):boolean => {
+     return !!something
+}
+```
+
+### 交叉类型
+
+多种类型的集合，联合对象将具有所联合类型的所有成员
+
+```typescript
+interface People {
+  age: number,
+  height： number
+}
+interface Man{
+  sex: string
+}
+const xiaoman = (man: People & Man) => {
+  console.log(man.age)
+  console.log(man.height)
+  console.log(man.sex)
+}
+xiaoman({age: 18,height: 180,sex: 'male'});
+```
+
+### 类型断言
+
+```
+语法：　　值 as 类型　　或　　<类型>值  value as string  <string>value
+```
+
+```ts
+interface A {
+       run: string
+}
+ 
+interface B {
+       build: string
+}
+ 
+const fn = (type: A | B): string => {
+       return type.run
+}
+//这样写是有警告的应为B的接口上面是没有定义run这个属性的
+```
+
+```ts
+interface A {
+       run: string
+}
+ 
+interface B {
+       build: string
+}
+ 
+const fn = (type: A | B): string => {
+       return (type as A).run
+}
+//可以使用类型断言来推断他传入的是A接口的值
+```
+
+### 使用any临时断言
+
+```javascript
+window.abc = 123
+//这样写会报错因为window没有abc这个东西
+```
+
+```ts
+(window as any).abc = 123
+//可以使用any临时断言在 any 类型的变量上，访问任何属性都是允许的。
+```
+
+### as const
+
+是对字面值的**断言**，与const直接定义常量是有区别的
+
+如果是普通类型跟直接const 声明是一样的
+
+```ts
+const names = '小满'
+names = 'aa' //无法修改
+
+let names2 = '小满' as const
+names2 = 'aa' //无法修改
+```
+
+```ts
+// 数组
+let a1 = [10, 20] as const;
+const a2 = [10, 20];
+ 
+a1.unshift(30); // 错误，此时已经断言字面量为[10, 20],数据无法做任何修改
+a2.unshift(30); // 通过，没有修改指针
+```
+
+
+
+# 二、内置对象
+
+## [ECMAScript](https://so.csdn.net/so/search?q=ECMAScript&spm=1001.2101.3001.7020) 的内置对象
+
+**`Boolean`、`Number`、`string`、`RegExp`、`Date`、`Error`**
+
+```js
+let b: Boolean = new Boolean(1)
+console.log(b)
+let n: Number = new Number(true)
+console.log(n)
+let s: String = new String('哔哩哔哩关注小满zs')
+console.log(s)
+let d: Date = new Date()
+console.log(d)
+let r: RegExp = /^1/
+console.log(r)
+let e: Error = new Error("error!")
+console.log(e)
+```
+
+## DOM 和 BOM 的内置对象
+
+ **`Document`、`HTMLElement`、`Event`、`NodeList` 等** 
+
+```js
+let body: HTMLElement = document.body;
+let allDiv: NodeList = document.querySelectorAll('div');
+//读取div 这种需要类型断言 或者加个判断应为读不到返回null
+let div:HTMLElement = document.querySelector('div') as HTMLDivElement
+document.addEventListener('click', function (e: MouseEvent) {
+    
+});
+//dom元素的映射表
+interface HTMLElementTagNameMap {
+    "a": HTMLAnchorElement;
+    "abbr": HTMLElement;
+    "address": HTMLElement;
+    "applet": HTMLAppletElement;
+    "area": HTMLAreaElement;
+    "article": HTMLElement;
+    "aside": HTMLElement;
+    "audio": HTMLAudioElement;
+    "b": HTMLElement;
+    "base": HTMLBaseElement;
+    "bdi": HTMLElement;
+    "bdo": HTMLElement;
+    "blockquote": HTMLQuoteElement;
+    "body": HTMLBodyElement;
+    "br": HTMLBRElement;
+    "button": HTMLButtonElement;
+    "canvas": HTMLCanvasElement;
+    "caption": HTMLTableCaptionElement;
+    "cite": HTMLElement;
+    "code": HTMLElement;
+    "col": HTMLTableColElement;
+    "colgroup": HTMLTableColElement;
+    "data": HTMLDataElement;
+    "datalist": HTMLDataListElement;
+    "dd": HTMLElement;
+    "del": HTMLModElement;
+    "details": HTMLDetailsElement;
+    "dfn": HTMLElement;
+    "dialog": HTMLDialogElement;
+    "dir": HTMLDirectoryElement;
+    "div": HTMLDivElement;
+    "dl": HTMLDListElement;
+    "dt": HTMLElement;
+    "em": HTMLElement;
+    "embed": HTMLEmbedElement;
+    "fieldset": HTMLFieldSetElement;
+    "figcaption": HTMLElement;
+    "figure": HTMLElement;
+    "font": HTMLFontElement;
+    "footer": HTMLElement;
+    "form": HTMLFormElement;
+    "frame": HTMLFrameElement;
+    "frameset": HTMLFrameSetElement;
+    "h1": HTMLHeadingElement;
+    "h2": HTMLHeadingElement;
+    "h3": HTMLHeadingElement;
+    "h4": HTMLHeadingElement;
+    "h5": HTMLHeadingElement;
+    "h6": HTMLHeadingElement;
+    "head": HTMLHeadElement;
+    "header": HTMLElement;
+    "hgroup": HTMLElement;
+    "hr": HTMLHRElement;
+    "html": HTMLHtmlElement;
+    "i": HTMLElement;
+    "iframe": HTMLIFrameElement;
+    "img": HTMLImageElement;
+    "input": HTMLInputElement;
+    "ins": HTMLModElement;
+    "kbd": HTMLElement;
+    "label": HTMLLabelElement;
+    "legend": HTMLLegendElement;
+    "li": HTMLLIElement;
+    "link": HTMLLinkElement;
+    "main": HTMLElement;
+    "map": HTMLMapElement;
+    "mark": HTMLElement;
+    "marquee": HTMLMarqueeElement;
+    "menu": HTMLMenuElement;
+    "meta": HTMLMetaElement;
+    "meter": HTMLMeterElement;
+    "nav": HTMLElement;
+    "noscript": HTMLElement;
+    "object": HTMLObjectElement;
+    "ol": HTMLOListElement;
+    "optgroup": HTMLOptGroupElement;
+    "option": HTMLOptionElement;
+    "output": HTMLOutputElement;
+    "p": HTMLParagraphElement;
+    "param": HTMLParamElement;
+    "picture": HTMLPictureElement;
+    "pre": HTMLPreElement;
+    "progress": HTMLProgressElement;
+    "q": HTMLQuoteElement;
+    "rp": HTMLElement;
+    "rt": HTMLElement;
+    "ruby": HTMLElement;
+    "s": HTMLElement;
+    "samp": HTMLElement;
+    "script": HTMLScriptElement;
+    "section": HTMLElement;
+    "select": HTMLSelectElement;
+    "slot": HTMLSlotElement;
+    "small": HTMLElement;
+    "source": HTMLSourceElement;
+    "span": HTMLSpanElement;
+    "strong": HTMLElement;
+    "style": HTMLStyleElement;
+    "sub": HTMLElement;
+    "summary": HTMLElement;
+    "sup": HTMLElement;
+    "table": HTMLTableElement;
+    "tbody": HTMLTableSectionElement;
+    "td": HTMLTableDataCellElement;
+    "template": HTMLTemplateElement;
+    "textarea": HTMLTextAreaElement;
+    "tfoot": HTMLTableSectionElement;
+    "th": HTMLTableHeaderCellElement;
+    "thead": HTMLTableSectionElement;
+    "time": HTMLTimeElement;
+    "title": HTMLTitleElement;
+    "tr": HTMLTableRowElement;
+    "track": HTMLTrackElement;
+    "u": HTMLElement;
+    "ul": HTMLUListElement;
+    "var": HTMLElement;
+    "video": HTMLVideoElement;
+    "wbr": HTMLElement;
+}
+```
+
+## Promise
+
+```ts
+function promise():Promise<number>{
+   return new Promise<number>((resolve,reject)=>{
+       resolve(1)
+   })
+}
+ 
+promise().then(res=>{
+    console.log(res)
+})
+```
+
+
+
+# 三、Class类
+
+## 1、定义
+
+ TypeScript不允许直接在constructor 定义变量的 需要在constructor上面先声明 
+
+ 如果了定义了变量不用 也会报错 通常是给个默认值 或者 进行赋值 
+
+```ts
+class Person {
+  name:string
+  age:number = 0
+  constructor (name:string,age:number) {
+    this.name = name
+  }
+}
+```
+
+## 2、类的修饰符
+
+public protected private
+
+ 使用public 修饰符 可以让你定义的变量 内部访问 也可以外部访问 如果不写默认就是public
+
+ 使用 protected 修饰符 代表定义的变量私有的只能在内部和继承的子类中访问 不能在外部访问
+
+ 使用 private 修饰符 代表定义的变量私有的只能在内部访问 不能在外部访问
+
+## 3、static
+
+ 用static 定义的属性 不可以通过this 去访问 只能通过类名去调用 
+
+ 如果两个函数都是static 静态的是可以通过this互相调用
+
+## 4、 extends、implements
+
+## 5、抽象类
+
+```ts
+abstract class A {
+   public name:string
+   
+}
+```
+
+
+
+# 四、**Tuple** 元组 
+
+ 固定大小的不同类型值的集合 
+
+```ts
+let arr:[number,string] = [1,'string']
+let arr2: readonly [number,boolean,string,undefined] = [1,true,'sring',undefined]
+```
+
+ 对于越界的元素他的类型被限制为 联合类型（就是你在元组中定义的类型）
+
+应用场景 例如定义execl返回的数据
+
+```ts
+let excel: [string, string, number, string][] = [
+    ['title', 'name', 1, '123'],
+    ['title', 'name', 1, '123'],
+    ['title', 'name', 1, '123'],
+    ['title', 'name', 1, '123'],
+    ['title', 'name', 1, '123'],
+]
+```
+
+# 五、枚举
+
+## 1、数字枚举
+
+```ts
+// Red = 0 Green = 1 Blue= 2
+// 默认就是从0开始的 可以不写值
+enum Types{
+   Red,
+   Green,
+   BLue
+}
+```
+
+## 2.字符串枚举
+
+```ts
+enum Types{
+   Red = 'red',
+   Green = 'green',
+   BLue = 'blue'
+}
+```
+
+## 3.异构枚举
+
+```ts
+enum Types{
+   No = "No",
+   Yes = 1,
+}
+```
+
+## 4.接口枚举
+
+```ts
+   enum Types {
+      yyds,
+      dddd
+   }
+   interface A {
+      red:Types.yyds
+   }
+ 
+   let obj:A = {
+      red:Types.yyds
+   }
+```
+
+## 5.const枚举
+
+ let 和 var 都是不允许的声明只能使用const 
+
+大多数情况下，枚举是十分有效的方案。 然而在某些情况下需求很严格。 为了避免在额外生成的代码上的开销和额外的非直接的对枚举成员的访问，我们可以使用 `const`枚举。 常量枚举通过在枚举上使用 `const`修饰符来定义
+
+const 声明的枚举会被编译成常量
+
+普通声明的枚举编译完后是个对象
+
+```ts
+const enum Types{
+   No = "No",
+   Yes = 1,
+}
+```
+
+## 6.反向映射
+
+它包含了正向映射（ `name` -> `value`）和反向映射（ `value` -> `name`）
+
+要注意的是 *不会*为字符串枚举成员生成反向映射。
+
+```typescript
+enum Enum {
+   fall
+}
+let a = Enum.fall;
+console.log(a); //0
+let nameOfA = Enum[a]; 
+console.log(nameOfA); //fall
+```
+
+
+
+# 六、类型推论|类型别名
+
+## 1、类型推论
+
+（1） 声明了一个变量但是没有定义类型 
+
+ [TypeScript](https://so.csdn.net/so/search?q=TypeScript&spm=1001.2101.3001.7020) 会在没有明确的指定类型的时候推测出一个类型，这就是类型推论 
+
+ 不能够在赋值给别的类型 
+
+（2） 如果你声明变量没有定义类型也没有赋值这时候TS会推断成any类型可以进行任何操作 
+
+## 2、类型别名
+
+ type 关键字（可以给一个类型定义一个名字）多用于符合类型 
+
+类型
+
+```ts
+type str = string
+ 
+let s:str = "ok"
+ 
+console.log(s);
+```
+
+函数
+
+```ts
+type str = () => string
+ 
+let s: str = () => "ok"
+ 
+console.log(s);
+```
+
+ 联合类型 
+
+```ts
+type str = string | number
+ 
+let s: str = 123
+ 
+let s2: str = '123'
+ 
+console.log(s,s2);
+```
+
+ 值
+
+```ts
+type value = boolean | 0 | '213'
+
+let s:value = true
+//变量s的值  只能是上面value定义的值
+```
+
+# 七、never类型
+
+ [TypeScript](https://so.csdn.net/so/search?q=TypeScript&spm=1001.2101.3001.7020) 将使用 never 类型来表示不应该存在的状态 
+
+```ts
+// 返回never的函数必须存在无法达到的终点
+ 
+// 因为必定抛出异常，所以 error 将不会有返回值
+function error(message: string): never {
+    throw new Error(message);
+}
+ 
+// 因为存在死循环，所以 loop 将不会有返回值
+function loop(): never {
+    while (true) {
+    }
+}
+```
+
+应用场景
+
+```ts
+interface A {
+    type: "foo"
+}
+ 
+interface B {
+    type: "bar"
+}
+type All = A | B ;
+function handleValue(val: All) {
+    switch (val.type) {
+        case 'foo':
+            break;
+        case 'bar':
+            break
+        default:
+            //兜底逻辑 一般是不会进入这儿如果进来了就是程序异常了
+            
+            const exhaustiveCheck:never = val;
+            break
+    }
+}
+```
+
+```ts
+interface A {
+    type: "foo"
+}
+ 
+interface B {
+    type: "bar"
+}
+interface C {
+    type: "bizz"
+}
+type All = A | B | C;
+function handleValue(val: All) {
+    switch (val.type) {
+        case 'foo':
+            break;
+        case 'bar':
+            break
+        default:
+            //兜底逻辑 一般是不会进入这儿如果进来了就是程序异常了
+ 
+            const exhaustiveCheck: never = val;
+            break
+    }
+}
+```
+
+ 由于任何类型都不能赋值给 `never` 类型的变量，所以当存在进入 `default` 分支的可能性时，TS的类型检查会及时帮我们发现这个问题 
+
+# 八、symbol
+
+ 可以传递参做为唯一标识 只支持 string 和 number类型的参数 
+
+```ts
+let sym1 = Symbol();
+let sym2 = Symbol("key"); // 可选的字符串key
+```
+
+Symbol的值是唯一的
+
+```ts
+const s1 = Symbol()
+const s2 = Symbol()
+// s1 === s2 =>false
+```
+
+用作对象属性的键
+
+```ts
+let sym = Symbol();
+ 
+let obj = {
+    [sym]: "value"
+};
+ 
+console.log(obj[sym]); // "value"
+```
+
+使用symbol定义的属性，是不能通过如下方式遍历拿到的
+
+```ts
+const symbol1 = Symbol('666')
+const symbol2 = Symbol('777')
+const obj1= {
+   [symbol1]: '小满',
+   [symbol2]: '二蛋',
+   age: 19,
+   sex: '女'
+}
+// 1 for in 遍历
+for (const key in obj1) {
+   // 注意在console看key,是不是没有遍历到symbol1
+   console.log(key)
+}
+// 2 Object.keys 遍历
+Object.keys(obj1)
+console.log(Object.keys(obj1))
+// 3 getOwnPropertyNames
+console.log(Object.getOwnPropertyNames(obj1))
+// 4 JSON.stringfy
+console.log(JSON.stringify(obj1))
+```
+
+ 如何拿到 
+
+```ts
+// 1 拿到具体的symbol 属性,对象中有几个就会拿到几个
+Object.getOwnPropertySymbols(obj1)
+console.log(Object.getOwnPropertySymbols(obj1))
+// 2 es6 的 Reflect 拿到对象的所有属性
+Reflect.ownKeys(obj1)
+console.log(Reflect.ownKeys(obj1))
+```
+
+Symbol.iterator 迭代器 和 生成器 for of
+
+ 支持遍历大部分类型迭代器 arr nodeList argumetns set map 等 
+
+```ts
+var arr = [1,2,3,4];
+let iterator = arr[Symbol.iterator]();
+ 
+console.log(iterator.next());  //{ value: 1, done: false }
+console.log(iterator.next());  //{ value: 2, done: false }
+console.log(iterator.next());  //{ value: 3, done: false }
+console.log(iterator.next());  //{ value: 4, done: false }
+console.log(iterator.next());  //{ value: undefined, done: true }
+```
+
+ 测试用例 
+
+```ts
+interface Item {
+    age: number,
+    name: string
+}
+ 
+const array: Array<Item> = [{ age: 123, name: "1" }, { age: 123, name: "2" }, { age: 123, name: "3" }]
+ 
+type mapTypes = string | number
+const map:Map<mapTypes,mapTypes> = new Map()
+ 
+map.set('1','王爷')
+map.set('2','陆北')
+ 
+const obj = {
+    aaa:123,
+    bbb:456
+}
+ 
+let set:Set<number> = new Set([1,2,3,4,5,6])
+// let it:Iterator<Item> = array[Symbol.iterator]()
+const gen = (erg:any): void => {
+    let it: Iterator<any> = erg[Symbol.iterator]()
+    let next:any= { done: false }
+    while (!next.done) {
+        next =  it.next()
+        if (!next.done) {
+            console.log(next.value)
+        }
+    }
+}
+gen(array)
+```
+
+```ts
+Symbol.hasInstance
+方法，会被instanceof运算符调用。构造器对象用来识别一个对象是否是其实例。
+
+Symbol.isConcatSpreadable
+布尔值，表示当在一个对象上调用Array.prototype.concat时，这个对象的数组元素是否可展开。
+
+Symbol.iterator
+方法，被for-of语句调用。返回对象的默认迭代器。
+
+Symbol.match
+方法，被String.prototype.match调用。正则表达式用来匹配字符串。
+
+Symbol.replace
+方法，被String.prototype.replace调用。正则表达式用来替换字符串中匹配的子串。
+
+Symbol.search
+方法，被String.prototype.search调用。正则表达式返回被匹配部分在字符串中的索引。
+
+Symbol.species
+函数值，为一个构造函数。用来创建派生对象。
+
+Symbol.split
+方法，被String.prototype.split调用。正则表达式来用分割字符串。
+
+Symbol.toPrimitive
+方法，被ToPrimitive抽象操作调用。把对象转换为相应的原始值。
+
+Symbol.toStringTag
+方法，被内置方法Object.prototype.toString调用。返回创建对象时默认的字符串描述。
+
+Symbol.unscopables
+对象，它自己拥有的属性会被with作用域排除在外。
+```
+
+# 九、泛型
+
+## 函数泛型
+
+```ts
+function num (a:number,b:number) : Array<number> {
+    return [a ,b];
+}
+num(1,2)
+function str (a:string,b:string) : Array<string> {
+    return [a ,b];
+}
+str('独孤','求败')
+```
+
+```ts
+function Add<T>(a: T, b: T): Array<T>  {
+    return [a,b]
+}
+ 
+Add<number>(1,2)
+Add<string>('1','2')
+```
+
+```ts
+function Sub<T,U>(a:T,b:U):Array<T|U> {
+    const params:Array<T|U> = [a,b]
+    return params
+}
+Sub<Boolean,number>(false,1)
+```
+
+## 泛型接口
+
+```ts
+interface MyInter<T> {
+   (arg: T): T
+}
+ 
+function fn<T>(arg: T): T {
+   return arg
+}
+ 
+let result: MyInter<number> = fn
+ 
+result(123)
+```
+
+## 对象字面量泛型
+
+```ts
+let foo: { <T>(arg: T): T }
+ 
+foo = function <T>(arg:T):T {
+   return arg
+}
+ 
+foo(123)
+```
+
+## 泛型约束
+
+ 我们期望在一个泛型的变量上面，获取其`length`参数，但是，有的数据类型是没有`length`属性的 
+
+```ts
+function getLegnth<T>(arg:T) {
+  return arg.length
+}
+```
+
+ 对使用的泛型进行约束，我们约束其为具有`length`属性的类型 
+
+```ts
+interface Len {
+   length:number
+}
+ 
+function getLegnth<T extends Len>(arg:T) {
+  return arg.length
+}
+ 
+getLegnth<string>('123')
+```
+
+## 使用keyof 约束对象
+
+其中使用了TS泛型和泛型约束。首先定义了T类型并使用extends关键字继承object类型的子类型，然后使用keyof操作符获取T类型的所有键，它的返回 类型是联合 类型，最后利用extends关键字约束 K类型必须为keyof T联合类型的子类型 
+
+```ts
+function prop<T, K extends keyof T>(obj: T, key: K) {
+   return obj[key]
+}
+ 
+ 
+let o = { a: 1, b: 2, c: 3 }
+ 
+prop(o, 'a') 
+prop(o, 'd') 
+```
+
+## 泛型类
+
+声明方法跟函数类似名称后面定义<类型>
+
+使用的时候确定类型new Sub<number>()
+
+```ts
+class Sub<T>{
+   attr: T[] = [];
+   add (a:T):T[] {
+      return [a]
+   }
+}
+ 
+let s = new Sub<number>()
+s.attr = [1,2,3]
+s.add(123)
+ 
+let str = new Sub<string>()
+str.attr = ['1','2','3']
+str.add('123')
+```
+
+
+
+# 十、tsconfig.json
+
+ tsc --init 
+
+```ts
+"compilerOptions": {
+  "incremental": true, // TS编译器在第一次编译之后会生成一个存储编译信息的文件，第二次编译会在第一次的基础上进行增量编译，可以提高编译的速度
+  "tsBuildInfoFile": "./buildFile", // 增量编译文件的存储位置
+  "diagnostics": true, // 打印诊断信息 
+  "target": "ES5", // 目标语言的版本
+  "module": "CommonJS", // 生成代码的模板标准
+  "outFile": "./app.js", // 将多个相互依赖的文件生成一个文件，可以用在AMD模块中，即开启时应设置"module": "AMD",
+  "lib": ["DOM", "ES2015", "ScriptHost", "ES2019.Array"], // TS需要引用的库，即声明文件，es5 默认引用dom、es5、scripthost,如需要使用es的高级版本特性，通常都需要配置，如es8的数组新特性需要引入"ES2019.Array",
+  "allowJS": true, // 允许编译器编译JS，JSX文件
+  "checkJs": true, // 允许在JS文件中报错，通常与allowJS一起使用
+  "outDir": "./dist", // 指定输出目录
+  "rootDir": "./", // 指定输出文件目录(用于输出)，用于控制输出目录结构
+  "declaration": true, // 生成声明文件，开启后会自动生成声明文件
+  "declarationDir": "./file", // 指定生成声明文件存放目录
+  "emitDeclarationOnly": true, // 只生成声明文件，而不会生成js文件
+  "sourceMap": true, // 生成目标文件的sourceMap文件
+  "inlineSourceMap": true, // 生成目标文件的inline SourceMap，inline SourceMap会包含在生成的js文件中
+  "declarationMap": true, // 为声明文件生成sourceMap
+  "typeRoots": [], // 声明文件目录，默认时node_modules/@types
+  "types": [], // 加载的声明文件包
+  "removeComments":true, // 删除注释 
+  "noEmit": true, // 不输出文件,即编译后不会生成任何js文件
+  "noEmitOnError": true, // 发送错误时不输出任何文件
+  "noEmitHelpers": true, // 不生成helper函数，减小体积，需要额外安装，常配合importHelpers一起使用
+  "importHelpers": true, // 通过tslib引入helper函数，文件必须是模块
+  "downlevelIteration": true, // 降级遍历器实现，如果目标源是es3/5，那么遍历器会有降级的实现
+  "strict": true, // 开启所有严格的类型检查
+  "alwaysStrict": true, // 在代码中注入'use strict'
+  "noImplicitAny": true, // 不允许隐式的any类型
+  "strictNullChecks": true, // 不允许把null、undefined赋值给其他类型的变量
+  "strictFunctionTypes": true, // 不允许函数参数双向协变
+  "strictPropertyInitialization": true, // 类的实例属性必须初始化
+  "strictBindCallApply": true, // 严格的bind/call/apply检查
+  "noImplicitThis": true, // 不允许this有隐式的any类型
+  "noUnusedLocals": true, // 检查只声明、未使用的局部变量(只提示不报错)
+  "noUnusedParameters": true, // 检查未使用的函数参数(只提示不报错)
+  "noFallthroughCasesInSwitch": true, // 防止switch语句贯穿(即如果没有break语句后面不会执行)
+  "noImplicitReturns": true, //每个分支都会有返回值
+  "esModuleInterop": true, // 允许export=导出，由import from 导入
+  "allowUmdGlobalAccess": true, // 允许在模块中全局变量的方式访问umd模块
+  "moduleResolution": "node", // 模块解析策略，ts默认用node的解析策略，即相对的方式导入
+  "baseUrl": "./", // 解析非相对模块的基地址，默认是当前目录
+  "paths": { // 路径映射，相对于baseUrl
+    // 如使用jq时不想使用默认版本，而需要手动指定版本，可进行如下配置
+    "jquery": ["node_modules/jquery/dist/jquery.min.js"]
+  },
+  "rootDirs": ["src","out"], // 将多个目录放在一个虚拟目录下，用于运行时，即编译后引入文件的位置可能发生变化，这也设置可以虚拟src和out在同一个目录下，不用再去改变路径也不会报错
+  "listEmittedFiles": true, // 打印输出文件
+  "listFiles": true// 打印编译的文件(包括引用的声明文件)
+}
+ 
+// 指定一个匹配列表（属于自动指定该路径下的所有ts相关文件）
+"include": [
+   "src/**/*"
+],
+// 指定一个排除列表（include的反向操作）
+ "exclude": [
+   "demo.ts"
+],
+// 指定哪些文件使用该配置（属于手动一个个指定文件）
+ "files": [
+   "demo.ts"
+]
+```
+
+常用:
+
+1.include
+
+指定编译文件默认是编译当前目录下所有的ts文件
+
+2.exclude
+
+指定排除的文件
+
+3.target
+
+指定编译js 的版本例如es5 es6
+
+4.allowJS
+
+是否允许编译js文件
+
+5.removeComments
+
+是否在编译过程中删除文件中的注释
+
+6.rootDir
+
+编译文件的目录
+
+7.outDir
+
+输出的目录
+
+8.sourceMap
+
+代码源文件
+
+9.strict
+
+严格模式
+
+10.module
+
+默认common.js 可选es6模式 amd umd 等
