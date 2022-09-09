@@ -1,6 +1,6 @@
-# 一、Transfrom (2D)
+# 一、Transform (2D)
 
-> 使用：transfrom
+> 使用：transform
 
 1、translate(x,y) 平移
 
@@ -12,7 +12,7 @@
 
 
 
-#  二、Transfrom (3D)
+#  二、Transform (3D)
 
 0、perspective：x px 透视
 

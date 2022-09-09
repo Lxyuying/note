@@ -1453,3 +1453,653 @@ str.add('123')
 10.module
 
 默认common.js 可选es6模式 amd umd 等
+
+
+
+# 十一、namespace命名空间
+
+[命名空间](https://so.csdn.net/so/search?q=命名空间&spm=1001.2101.3001.7020)中通过`export`将想要暴露的部分导出
+
+如果不用export 导出是无法读取其值的
+
+```typescript
+namespace a {
+    export const Time: number = 1000
+    export const fn = <T>(arg: T): T => {
+        return arg
+    }
+    fn(Time)
+}
+ 
+ 
+namespace b {
+     export const Time: number = 1000
+     export const fn = <T>(arg: T): T => {
+        return arg
+    }
+    fn(Time)
+}
+ 
+a.Time
+b.Time
+```
+
+嵌套命名空间
+
+```typescript
+namespace a {
+    export namespace b {
+        export class Vue {
+            parameters: string
+            constructor(parameters: string) {
+                this.parameters = parameters
+            }
+        }
+    }
+}
+ 
+let v = a.b.Vue
+ 
+new v('1')
+```
+
+抽离命名空间
+
+a.ts
+
+```cpp
+export namespace V {
+    export const a = 1
+}
+```
+
+b.ts
+
+```javascript
+import {V} from '../observer/index'
+ 
+console.log(V);
+```
+
+ //{a:1}
+
+简化命名空间
+
+```cpp
+namespace A  {
+    export namespace B {
+        export const C = 1
+    }
+}
+ 
+import X = A.B.C
+ 
+console.log(X);
+```
+
+合并命名空间
+
+重名的命名空间会合并
+
+
+
+# 十二、三斜线指令
+
+三斜线指令是包含单个[XML](https://so.csdn.net/so/search?q=XML&spm=1001.2101.3001.7020)标签的单行注释。 注释的内容会做为编译器指令使用。
+
+三斜线指令*仅*可放在包含它的文件的最顶端。 一个三斜线指令的前面只能出现单行或多行注释，这包括其它的三斜线指令。 如果它们出现在一个语句或声明之后，那么它们会被当做普通的单行注释，并且不具有特殊的涵义。
+
+`/// `指令是三斜线指令中最常见的一种。 它用于声明文件间的 *依赖*。
+
+三斜线引用告诉[编译器](https://so.csdn.net/so/search?q=编译器&spm=1001.2101.3001.7020)在编译过程中要引入的额外的文件。
+
+你也可以把它理解能`import`，它可以告诉编译器在编译过程中要引入的额外的文件
+
+例如a.ts
+
+```coffeescript
+namespace A {    export const fn = () => 'a'}
+```
+
+b.ts
+
+```coffeescript
+namespace A {    export const fn2 = () => 'b'}
+```
+
+index.ts
+
+引入之后直接可以使用变量A
+
+```lua
+///<reference path="./index2.ts" />
+///<reference path="./index3.ts" />  
+console.log(A);
+```
+
+声明文件引入
+
+例如，把 `/// `引入到声明文件，表明这个文件使用了 `@types/node/index.d.ts`里面声明的名字； 并且，这个包需要在编译阶段与声明文件一起被包含进来。
+
+仅当在你需要写一个`d.ts`文件时才使用这个指令。
+
+```xml
+///<reference types="node" />
+```
+
+注意事项：
+
+如果你在配置文件 配置了noResolve 或者自身调用自身文件会报错
+
+
+
+# 十三、声明文件d.ts
+
+## 声明文件 declare 
+
+当使用[第三方库](https://so.csdn.net/so/search?q=第三方库&spm=1001.2101.3001.7020)时，我们需要引用它的声明文件，才能获得对应的代码补全、接口提示等功能。
+
+```ts
+declare var 声明全局变量
+declare function 声明全局方法
+declare class 声明全局类
+declare enum 声明全局枚举类型
+declare namespace 声明（含有子属性的）全局对象
+interface 和 type 声明全局类型
+/// <reference /> 三斜线指令
+```
+
+如果有一些第三方包确实没有声明文件我们可以自己去定义
+
+名称.d.ts 创建一个文件去声明
+
+例如express.d.ts
+
+declare const express: ()=> any;
+
+
+
+# 十四、装饰器Decorator
+
+它们不仅增加了代码的可读性，清晰地表达了意图，而且提供一种方便的手段，增加或修改类的功能
+
+若要启用实验性的装饰器特性，你必须在[命令行](https://so.csdn.net/so/search?q=命令行&spm=1001.2101.3001.7020)或`tsconfig.json`里启用[编译器](https://so.csdn.net/so/search?q=编译器&spm=1001.2101.3001.7020)选项
+
+##  装饰器
+
+*装饰器*是一种特殊类型的声明，它能够被附加到[类声明](https://www.tslang.cn/docs/handbook/decorators.html#class-decorators)，[方法](https://www.tslang.cn/docs/handbook/decorators.html#method-decorators)， [访问符](https://www.tslang.cn/docs/handbook/decorators.html#accessor-decorators)，[属性](https://www.tslang.cn/docs/handbook/decorators.html#property-decorators)或[参数](https://www.tslang.cn/docs/handbook/decorators.html#parameter-decorators)上。
+
+首先定义一个类
+
+```ts
+class A {
+    constructor() {
+ 
+    }
+}
+```
+
+ 定义一个类装饰器函数 他会把ClassA的[构造函数](https://so.csdn.net/so/search?q=构造函数&spm=1001.2101.3001.7020)传入你的watcher函数当做第一个参数 
+
+```ts
+const watcher: ClassDecorator = (target: Function) => {
+    target.prototype.getParams = <T>(params: T):T => {
+        return params
+    }
+}
+```
+
+用的时候 直接通过@函数名使用
+
+```typescript
+@watcher
+class A {
+    constructor() {
+ 
+    }
+}
+```
+
+ 验证 
+
+```ts
+const a = new A();
+console.log((a as any).getParams('123'));
+```
+
+## 装饰器工厂
+
+其实也就是一个高阶函数 外层的函数接受值 里层的函数最终接受类的构造函数
+
+```ts
+const watcher = (name: string): ClassDecorator => {
+    return (target: Function) => {
+        target.prototype.getParams = <T>(params: T): T => {
+            return params
+        }
+        target.prototype.getOptions = (): string => {
+            return name
+        }
+    }
+}
+ 
+@watcher('name')
+class A {
+    constructor() {
+ 
+    }
+}
+ 
+const a = new A();
+console.log((a as any).getParams('123'));
+```
+
+## 装饰器组合
+
+就是可以使用多个装饰器
+
+```ts
+const watcher = (name: string): ClassDecorator => {
+    return (target: Function) => {
+        target.prototype.getParams = <T>(params: T): T => {
+            return params
+        }
+        target.prototype.getOptions = (): string => {
+            return name
+        }
+    }
+}
+const watcher2 = (name: string): ClassDecorator => {
+    return (target: Function) => {
+        target.prototype.getNames = ():string => {
+            return name
+        }
+    }
+}
+ 
+@watcher2('name2')
+@watcher('name')
+class A {
+    constructor() {
+ 
+    }
+}
+ 
+ 
+const a = new A();
+console.log((a as any).getOptions());
+console.log((a as any).getNames());
+```
+
+## 方法装饰器
+
+返回三个参数
+
+1. 对于静态成员来说是类的构造函数，对于实例成员是类的原型对象。
+2. 成员的名字。
+3. 成员的*属性描述符*。
+
+```ts
+[
+  {},
+  'setParasm',
+  {
+    value: [Function: setParasm],
+    writable: true,
+    enumerable: false,
+    configurable: true
+  }
+]
+```
+
+```ts
+const met:MethodDecorator = (...args) => {
+    console.log(args);
+}
+ 
+class A {
+    constructor() {
+ 
+    }
+    @met
+    getName ():string {
+        return '小满'
+    }
+}
+ 
+ 
+const a = new A();
+```
+
+## 属性装饰器
+
+返回两个参数
+
+1. 对于静态成员来说是类的构造函数，对于实例成员是类的原型对象。
+2. 属性的名字。
+
+[ {}, 'name', undefined ]
+
+```ts
+const met:PropertyDecorator = (...args) => {
+    console.log(args);
+}
+ 
+class A {
+    @met
+    name:string
+    constructor() {
+ 
+    }
+   
+}
+ 
+ 
+const a = new A();
+```
+
+## 参数装饰器
+
+返回三个参数
+
+1. 对于静态成员来说是类的构造函数，对于实例成员是类的原型对象。
+2. 成员的名字。
+3. 参数在函数参数列表中的索引。
+
+[ {}, 'setParasm', 0 ]
+
+```ts
+const met:ParameterDecorator = (...args) => {
+    console.log(args);
+}
+ 
+class A {
+    constructor() {
+ 
+    }
+    setParasm (@met name:string = '213') {
+ 
+    }
+}
+ 
+ 
+const a = new A();
+```
+
+
+
+# 十五、proxy & Reflect
+
+## **Proxy** 
+
+对象用于创建一个对象的代理，从而实现基本操作的拦截和自定义（如属性查找、赋值、[枚举](https://so.csdn.net/so/search?q=枚举&spm=1001.2101.3001.7020)、函数调用等）
+
+**`target`**
+
+要使用 `Proxy` 包装的目标对象（可以是任何类型的对象，包括原生[数组](https://so.csdn.net/so/search?q=数组&spm=1001.2101.3001.7020)，函数，甚至另一个代理）。
+
+**`handler`**
+
+一个通常以函数作为属性的对象，各属性中的函数分别定义了在执行各种操作时代理 `p` 的行为。
+
+[handler.get()](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Proxy/Proxy/get) 本次使用的get
+
+属性读取操作的捕捉器。
+
+[handler.set()](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Proxy/Proxy/set) 本次使用的set
+
+属性设置操作的捕捉器。
+
+## Reflect
+
+与大多数全局对象不同`Reflect`并非一个构造函数，所以不能通过[new运算符](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/new)对其进行调用，或者将`Reflect`对象作为一个函数来调用。`Reflect`的所有属性和方法都是静态的（就像[Math](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Math)对象）
+
+### Reflect.get(target, name, receiver) 
+
+`Reflect.get`方法查找并返回`target`对象的`name`属性，如果没有该属性返回undefined
+
+### Reflect.set(target, name,value, receiver) 
+
+`Reflect.set`方法设置`target`对象的`name`属性等于`value`。
+
+```ts
+type Person = {
+    name: string,
+    age: number,
+    text: string
+}
+ 
+ 
+const proxy = (object: any, key: any) => {
+    return new Proxy(object, {
+        get(target, prop, receiver) {
+            console.log(`get key======>${key}`);
+            return Reflect.get(target, prop, receiver)
+        },
+ 
+        set(target, prop, value, receiver) {
+            console.log(`set key======>${key}`);
+ 
+            return Reflect.set(target, prop, value, receiver)
+        }
+    })
+}
+ 
+const logAccess = (object: Person, key: 'name' | 'age' | 'text') => {
+    return proxy(object, key)
+}
+ 
+let man: Person = logAccess({
+    name: "小满",
+    age: 20,
+    text: "我的很小"
+}, 'age')
+ 
+man.age  = 30
+ 
+console.log(man);
+```
+
+ 使用泛型+keyof优化 
+
+```ts
+type Person = {
+    name: string,
+    age: number,
+    text: string
+}
+ 
+ 
+const proxy = (object: any, key: any) => {
+    return new Proxy(object, {
+        get(target, prop, receiver) {
+            console.log(`get key======>${key}`);
+            return Reflect.get(target, prop, receiver)
+        },
+ 
+        set(target, prop, value, receiver) {
+            console.log(`set key======>${key}`);
+ 
+            return Reflect.set(target, prop, value, receiver)
+        }
+    })
+}
+ 
+ 
+const logAccess = <T>(object: T, key: keyof T): T => {
+    return proxy(object, key)
+}
+ 
+let man: Person = logAccess({
+    name: "小满",
+    age: 20,
+    text: "我的很小"
+}, 'age')
+ 
+ 
+let man2 = logAccess({
+    id:1,
+    name:"小满2"
+}, 'name')
+ 
+man.age = 30
+ 
+console.log(man);
+```
+
+
+
+# 十六、Partial & Pick
+
+## Partial 
+
+看一下[源码](https://so.csdn.net/so/search?q=源码&spm=1001.2101.3001.7020)
+
+```haskell
+/**
+ * Make all properties in T optional
+  将T中的所有属性设置为可选
+ */
+type Partial<T> = {
+    [P in keyof T]?: T[P];
+};
+```
+
+使用前
+
+```haskell
+type Person = {
+    name:string,
+    age:number
+}
+ 
+type p = Partial<Person>
+```
+
+ 转换后全部转为了可选 
+
+```ts
+type p = {
+    name?: string | undefined;
+    age?: number | undefined;
+}
+```
+
+- **`keyof` 是干什么的？**
+
+- **`in` 是干什么的？**
+
+- **`?` 是将该属性变为可选属性**
+
+- **`T[P]` 是干什么的？**
+
+  
+
+***\*1 keyof我们讲过很多遍了 将一个接口对象的全部属性取出来变成联合类型\****
+
+***\*2 in 我们可以理解成for in P 就是key 遍历 keyof T 就是联合类型的每一项\****
+
+**3 ？这个操作就是将每一个属性变成可选项**
+
+**4 T[P] `索引访问操作符`，与 JavaScript 种访问属性值的操作类似**
+
+## **Pick** 
+
+从类型定义T的属性中，选取指定一组属性，返回一个新的类型定义。
+
+```ts
+/**
+ * From T, pick a set of properties whose keys are in the union K
+ */
+type Pick<T, K extends keyof T> = {
+    [P in K]: T[P];
+};
+```
+
+```ts
+type Person = {
+    name:string,
+    age:number,
+    text:string
+    address:string
+}
+ 
+type Ex = "text" | "age"
+ 
+type A = Pick<Person,Ex>
+```
+
+
+
+# 十七、Record & Readonly
+
+## Readonly
+
+```ts
+type Readonly<T> = {
+    readonly [P in keyof T]: T[P];
+};
+```
+
+ Readonly 这个操作就是将每一个属性变成只读 
+
+1 keyof 将一个接口对象的全部属性取出来变成联合类型
+
+2 in 我们可以理解成for in P 就是key [遍历](https://so.csdn.net/so/search?q=遍历&spm=1001.2101.3001.7020) keyof T 就是联合类型的每一项
+
+3 Readonly 这个操作就是将每一个属性变成只读
+
+4 T[P] 索引访问操作符，与 JavaScript 种访问属性值的操作类似
+
+## Record
+
+```ts
+type Record<K extends keyof any, T> = {
+    [P in K]: T;
+};
+```
+
+1 keyof any 返回 string number symbol 的联合类型
+
+2 in 我们可以理解成for in P 就是key 遍历 keyof any 就是string number symbol类型的每一项
+
+3 extends来约束我们的类型
+
+4 T 直接返回类型
+
+做到了约束 对象的key 同时约束了 value
+
+
+
+# 十八、infer
+
+ infer 是[TypeScript](https://so.csdn.net/so/search?q=TypeScript&spm=1001.2101.3001.7020) 新增到的关键字 充当占位符 
+
+ 定义一个类型 如果是[数组](https://so.csdn.net/so/search?q=数组&spm=1001.2101.3001.7020)类型 就返回 数组元素的类型 否则 就传入什么类型 就返回什么类型 
+
+```ts
+type Infer<T> = T extends Array<any> ? T[number] : T
+ 
+type A = Infer<(boolean | string)[]>
+ 
+type B = Infer<null>
+```
+
+ 使用inter 修改 
+
+```ts
+type Infer<T> = T extends Array<infer U> ? U : T
+ 
+type A = Infer<(string | Symbol)[]>
+```
+
+ 配合**tuple** 转换 **union** 联合类型 
+
+```ts
+type TupleToUni<T> = T extends Array<infer E> ? E : never
+ 
+type TTuple = [string, number];
+ 
+type ToUnion = TupleToUni<TTuple>; // string | number
+```
+

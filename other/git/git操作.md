@@ -23,6 +23,13 @@ git push -u origin master
 
 
 
+# 更换远程仓库
+
+> git remote rm origin
+> git remote add origin 你的新远程仓库地址
+
+
+
 # 一、 Git 常用命令  
 
 | 命令名称                             | 作用           |
@@ -47,7 +54,7 @@ git push -u origin master
 | git checkout 分支名 | 切换分支                     |
 | git merge 分支名    | 把指定的分支合并到当前分支上 |
 
-
+af3c93d
 
 # 三、 远程仓库操作 
 
