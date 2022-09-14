@@ -65,4 +65,5 @@ af3c93d
 | git push 别名 分支                 | 推送本地分支上的内容到远程仓库     |
 | git clone 远程地址                 | 将远程仓库的内容克隆到本地         |
 | git pull 远程库地址别名 远程分支名 | git pull 远程库地址别名 远程分支名 |
+| git push -u origin 分支名 --force  | 强制提交本地代码到远程             |
 
